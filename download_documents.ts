@@ -35,9 +35,9 @@ async function prepareDocumentsDir() {
 async function cloneRepo() {
   if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true })
-  }
 
-  await execAsync(`git clone --depth 1 ${repoUrl} ${tempDir}`)
+    await execAsync(`git clone --depth 1 ${repoUrl} ${tempDir}`)
+  }
 }
 
 async function processFiles() {
