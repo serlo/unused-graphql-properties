@@ -1,12 +1,12 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
+import * as os from 'os'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-const repoUrl = 'https://github.com/your-username/your-repo.git' // Replace with your repo URL
-const tempDir = path.join(__dirname, 'temp')
-const targetDir = 'path/to/directory' // Relative path in the repo
+const repoUrl = 'https://github.com/serlo/frontend.git'
+const tempDir = path.join(os.tmpdir(), 'serlo-frontend')
 const documentsDir = path.join(__dirname, 'documents')
 const gqlRegex = /gql`([\s\S]*?)`/g
 
@@ -33,8 +33,7 @@ async function prepareDocumentsDir() {
 }
 
 async function processFiles() {
-  const fullPath = path.join(tempDir, targetDir)
-  const tsFiles = findTSFiles(fullPath)
+  const tsFiles = findTSFiles(tempDir)
 
   for (const file of tsFiles) {
     const fileContent = fs.readFileSync(file, 'utf-8')
