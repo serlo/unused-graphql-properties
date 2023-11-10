@@ -12,12 +12,41 @@ const gqlRegex = /gql`([\s\S]*?)`/g
 
 const execAsync = promisify(exec)
 
-async function cloneRepo() {
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true })
-  }
+main().catch(console.error)
 
-  await execAsync(`git clone ${repoUrl} ${tempDir}`)
+async function main() {
+  await prepareDocumentsDir()
+  await cloneRepo()
+  await processFiles()
+
+  console.log('GraphQL queries have been extracted and saved.')
+}
+
+async function prepareDocumentsDir() {
+  if (!fs.existsSync(documentsDir)) {
+    fs.mkdirSync(documentsDir)
+  } else {
+    fs.readdirSync(documentsDir).forEach((file) => {
+      fs.unlinkSync(path.join(documentsDir, file))
+    })
+  }
+}
+
+async function processFiles() {
+  const fullPath = path.join(tempDir, targetDir)
+  const tsFiles = findTSFiles(fullPath)
+
+  for (const file of tsFiles) {
+    const fileContent = fs.readFileSync(file, 'utf-8')
+    let match
+    while ((match = gqlRegex.exec(fileContent)) !== null) {
+      const gqlContent = match[1]
+      const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
+      const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
+
+      fs.writeFileSync(graphqlFilePath, gqlContent)
+    }
+  }
 }
 
 function findTSFiles(dir: string): string[] {
@@ -38,39 +67,10 @@ function findTSFiles(dir: string): string[] {
   return filesToProcess
 }
 
-async function processFiles() {
-  const fullPath = path.join(tempDir, targetDir)
-  const tsFiles = findTSFiles(fullPath)
-
-  for (const file of tsFiles) {
-    const fileContent = fs.readFileSync(file, 'utf-8')
-    let match
-    while ((match = gqlRegex.exec(fileContent)) !== null) {
-      const gqlContent = match[1]
-      const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
-      const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
-
-      fs.writeFileSync(graphqlFilePath, gqlContent)
-    }
+async function cloneRepo() {
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true })
   }
+
+  await execAsync(`git clone ${repoUrl} ${tempDir}`)
 }
-
-async function prepareDocumentsDir() {
-  if (!fs.existsSync(documentsDir)) {
-    fs.mkdirSync(documentsDir)
-  } else {
-    fs.readdirSync(documentsDir).forEach((file) => {
-      fs.unlinkSync(path.join(documentsDir, file))
-    })
-  }
-}
-
-async function main() {
-  await prepareDocumentsDir()
-  await cloneRepo()
-  await processFiles()
-
-  console.log('GraphQL queries have been extracted and saved.')
-}
-
-main().catch(console.error)
