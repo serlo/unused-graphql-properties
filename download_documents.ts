@@ -57,7 +57,13 @@ async function processFiles() {
         const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
 
         fs.writeFileSync(graphqlFilePath, gqlContent)
-      } catch {
+      } catch (error: unknown) {
+        if (error instanceof SyntaxError) {
+          printError({ message: 'SyntaxError', file, gqlContentUnformated })
+        } else {
+          printError({ message: 'Unknwon error', file, error })
+        }
+
         continue
       }
     }
@@ -80,4 +86,12 @@ function findTSFiles(dir: string): string[] {
   }
 
   return filesToProcess
+}
+
+function printError(
+  error: {
+    message: string
+  } & Record<string, unknown>,
+) {
+  console.error(JSON.stringify(error, undefined, 2))
 }
