@@ -32,6 +32,14 @@ async function prepareDocumentsDir() {
   }
 }
 
+async function cloneRepo() {
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true })
+  }
+
+  await execAsync(`git clone --depth 1 ${repoUrl} ${tempDir}`)
+}
+
 async function processFiles() {
   const tsFiles = findTSFiles(tempDir)
 
@@ -64,12 +72,4 @@ function findTSFiles(dir: string): string[] {
   }
 
   return filesToProcess
-}
-
-async function cloneRepo() {
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true })
-  }
-
-  await execAsync(`git clone ${repoUrl} ${tempDir}`)
 }
