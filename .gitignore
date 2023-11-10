@@ -1,0 +1,28 @@
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor directories and files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store*
+ehthumbs.db
+Thumbs.db
+
+# TypeScript cache
+*.tsbuildinfo
