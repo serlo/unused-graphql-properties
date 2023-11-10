@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
 import * as os from 'os'
+import * as prettier from 'prettier'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
@@ -47,11 +48,18 @@ async function processFiles() {
     const fileContent = fs.readFileSync(file, 'utf-8')
     let match
     while ((match = gqlRegex.exec(fileContent)) !== null) {
-      const gqlContent = match[1]
-      const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
-      const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
+      const gqlContentUnformated = match[1]
+      try {
+        const gqlContent = await prettier.format(gqlContentUnformated, {
+          parser: 'graphql',
+        })
+        const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
+        const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
 
-      fs.writeFileSync(graphqlFilePath, gqlContent)
+        fs.writeFileSync(graphqlFilePath, gqlContent)
+      } catch {
+        continue
+      }
     }
   }
 }
