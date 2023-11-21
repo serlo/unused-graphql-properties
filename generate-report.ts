@@ -17,6 +17,9 @@ function readCoverageStats() {
 }
 
 function generateHtml(stats: Stats) {
+  const types = Object.values(stats.types)
+  types.sort((a, b) => (a.type > b.type ? 1 : a.type == b.type ? 0 : -1))
+
   return `<!DOCTYPE html>
   <html>
   <head>
@@ -79,7 +82,7 @@ function generateHtml(stats: Stats) {
     </script>
   </head>
   <body>
-    ${Object.values(stats.types).map(generateTypeReport).join('\n')}
+    ${types.map(generateTypeReport).join('\n')}
   </body>
   </html>`
 }
