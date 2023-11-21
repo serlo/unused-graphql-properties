@@ -5,8 +5,8 @@ import * as prettier from 'prettier'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-const repoUrl = 'https://github.com/serlo/frontend.git'
-const tempDir = path.join(os.tmpdir(), 'serlo-frontend')
+const repos = ['frontend', 'cloudflare-worker', 'notification-mail-service']
+const tempDir = path.join(os.tmpdir(), 'serlo')
 const documentsDir = path.join(__dirname, 'documents')
 
 const execAsync = promisify(exec)
@@ -15,7 +15,7 @@ main().catch(console.error)
 
 async function main() {
   await prepareDocumentsDir()
-  await cloneRepo()
+  await cloneRepos()
   await processFiles()
 
   console.log('GraphQL queries have been extracted and saved.')
@@ -31,17 +31,26 @@ async function prepareDocumentsDir() {
   }
 }
 
-async function cloneRepo() {
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true })
+async function cloneRepos() {
+  for (const repo of repos) {
+    await cloneRepo(repo)
+  }
+}
 
-    await execAsync(`git clone --depth 1 ${repoUrl} ${tempDir}`)
+async function cloneRepo(repo: string) {
+  const repoUrl = `https://github.com/serlo/${repo}.git`
+  const targetDir = path.join(tempDir, repo)
+
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true })
+
+    await execAsync(`git clone --depth 1 ${repoUrl} ${targetDir}`)
   }
 }
 
 const namedDocumentsRegex =
   /const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+=\s+gql`([^`]*)`/g
-const gqlRegex = /gql`([\s\S]*?)`/g
+const gqlRegex = /(gql|query = |graphql\()`([\s\S]*?)`/g
 
 async function processFiles() {
   const tsFiles = findTSFiles(tempDir)
@@ -58,7 +67,7 @@ async function processFiles() {
     }
 
     while ((match = gqlRegex.exec(fileContent)) !== null) {
-      documents.push({ file, document: match[1] })
+      documents.push({ file, document: match[2] })
     }
   }
 
