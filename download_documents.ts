@@ -9,7 +9,6 @@ import { promisify } from 'util'
 const repoUrl = 'https://github.com/serlo/frontend.git'
 const tempDir = path.join(os.tmpdir(), 'serlo-frontend')
 const documentsDir = path.join(__dirname, 'documents')
-const gqlRegex = /gql`([\s\S]*?)`/g
 
 const execAsync = promisify(exec)
 
@@ -41,30 +40,62 @@ async function cloneRepo() {
   }
 }
 
+const namedDocumentsRegex =
+  /const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+=\s+gql`([^`]*)`/g
+const gqlRegex = /gql`([\s\S]*?)`/g
+
 async function processFiles() {
   const tsFiles = findTSFiles(tempDir)
+  const namedDocuments: Record<string, string> = {}
+  const documents: Array<{ file: string; document: string }> = []
 
   for (const file of tsFiles) {
     const fileContent = fs.readFileSync(file, 'utf-8')
-    let match
+
+    let match: ReturnType<typeof namedDocumentsRegex.exec>
+
+    while ((match = namedDocumentsRegex.exec(fileContent)) !== null) {
+      namedDocuments[match[1]] = match[2]
+    }
+
     while ((match = gqlRegex.exec(fileContent)) !== null) {
-      const gqlContentUnformated = match[1]
-      try {
-        const gqlContent = await prettier.format(gqlContentUnformated, {
-          parser: 'graphql',
+      documents.push({ file, document: match[1] })
+    }
+  }
+
+  for (const { file, document } of documents) {
+    const fragmentsRegex = /\${([a-zA-Z_][a-zA-Z0-9_]*)}/g
+
+    let newDocument = document
+
+    while (newDocument.match(fragmentsRegex)) {
+      newDocument = newDocument.replace(fragmentsRegex, (_, fragment) => {
+        return fragment === 'id' ? '42' : namedDocuments[fragment]
+      })
+
+      if (/uuid42:/.exec(newDocument)) {
+        newDocument = newDocument.replace('uuid42:', 'query {') + '}'
+      }
+    }
+
+    try {
+      const gqlContent = await prettier.format(newDocument, {
+        parser: 'graphql',
+      })
+      const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
+      const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
+
+      fs.writeFileSync(graphqlFilePath, gqlContent)
+    } catch (error: unknown) {
+      if (error instanceof SyntaxError) {
+        printError({
+          message: 'SyntaxError',
+          file,
+          document: newDocument,
+          error,
         })
-        const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
-        const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
-
-        fs.writeFileSync(graphqlFilePath, gqlContent)
-      } catch (error: unknown) {
-        if (error instanceof SyntaxError) {
-          printError({ message: 'SyntaxError', file, gqlContentUnformated })
-        } else {
-          printError({ message: 'Unknwon error', file, error })
-        }
-
-        continue
+      } else {
+        printError({ message: 'Unknwon error', file, error })
       }
     }
   }
