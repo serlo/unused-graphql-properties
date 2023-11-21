@@ -120,6 +120,7 @@ function generateFieldReport(parent: string, name: string, stats: FieldStats) {
     </span>`,
     content: `<ul>
       ${Object.keys(stats.locations)
+        .map((x) => x.replace(/-\d+\.graphql$/, ''))
         .map((x) => basename(x))
         .map((x) => x.replace(/---/g, '/'))
         .map((x) => `<li>${x}</li>`)
