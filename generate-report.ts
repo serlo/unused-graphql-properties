@@ -66,6 +66,11 @@ function generateHtml(stats: Stats) {
       .open > .spoiler-heading > .arrow {
         transform: rotate(90deg);
       }
+
+      a.link {
+        color: #666;
+        text-decoration: none;
+      }
     </style>
     <script type="text/javascript">
       function toggleSpoiler(element) {
@@ -90,6 +95,7 @@ function generateHtml(stats: Stats) {
 function generateTypeReport(typeStats: TypeStats) {
   return spoiler({
     open: true,
+    id: typeStats.type,
     heading: `
       <span class="${typeStats.hits > 0 ? 'used' : 'not-used'}">
         ${typeStats.type}
@@ -101,13 +107,14 @@ function generateTypeReport(typeStats: TypeStats) {
       </span>`,
     headingType: 'h3',
     content: Object.entries(typeStats.children)
-      .map(([name, stats]) => generateFieldReport(name, stats))
+      .map(([name, stats]) => generateFieldReport(typeStats.type, name, stats))
       .join('\n'),
   })
 }
 
-function generateFieldReport(name: string, stats: FieldStats) {
+function generateFieldReport(parent: string, name: string, stats: FieldStats) {
   return spoiler({
+    id: `${parent}.${name}`,
     heading: `<span class="${stats.hits > 0 ? 'used' : 'not-used'}">
      ${name} (${stats.hits}x)
     </span>`,
@@ -124,18 +131,21 @@ function generateFieldReport(name: string, stats: FieldStats) {
 function spoiler({
   content,
   open = false,
+  id,
   heading,
   headingType = 'div',
 }: {
   open?: boolean
+  id: string
   heading: string
   content: string
   headingType?: 'h3' | 'div'
 }) {
   return `<div class="spoiler ${open ? 'open' : ''}">
-            <${headingType} class="spoiler-heading" onclick="toggleSpoiler(this)">
+            <${headingType} class="spoiler-heading" onclick="toggleSpoiler(this)" id="${id}">
               <span class="arrow">&#9654;</span>
               ${heading}
+              <a href="#${id}" class="link">#</a>
             </${headingType}>
             <div class="spoiler-content" style="display: ${
               open ? 'block' : 'none'
