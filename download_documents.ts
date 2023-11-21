@@ -56,6 +56,7 @@ async function processFiles() {
   const tsFiles = findTSFiles(tempDir)
   const namedDocuments: Record<string, string> = {}
   const documents: Array<{ file: string; document: string }> = []
+  let count = 1
 
   for (const file of tsFiles) {
     const fileContent = fs.readFileSync(file, 'utf-8')
@@ -96,7 +97,8 @@ async function processFiles() {
         parser: 'graphql',
       })
       const filePath = file.replace(os.tmpdir() + '/', '').replace(/\//g, '---')
-      const fileName = `${filePath}.graphql`
+      const fileName = `${filePath}-${count}.graphql`
+      count += 1
       const graphqlFilePath = path.join(documentsDir, fileName)
 
       fs.writeFileSync(graphqlFilePath, gqlContent)
