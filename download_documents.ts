@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import * as crypto from 'crypto'
 import * as os from 'os'
 import * as prettier from 'prettier'
 import { exec } from 'child_process'
@@ -82,8 +81,9 @@ async function processFiles() {
       const gqlContent = await prettier.format(newDocument, {
         parser: 'graphql',
       })
-      const hash = crypto.createHash('md5').update(gqlContent).digest('hex')
-      const graphqlFilePath = path.join(documentsDir, `${hash}.graphql`)
+      const filePath = file.replace(os.tmpdir() + '/', '').replace(/\//g, '-')
+      const fileName = `${filePath}.graphql`
+      const graphqlFilePath = path.join(documentsDir, fileName)
 
       fs.writeFileSync(graphqlFilePath, gqlContent)
     } catch (error: unknown) {
