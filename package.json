@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "show-coverage": "graphql-inspector coverage 'documents/*graphql' https://api.serlo-staging.dev/graphql",
     "download-documents": "ts-node download_documents.ts"
   },
   "dependencies": {
