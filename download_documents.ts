@@ -86,6 +86,11 @@ async function processFiles() {
       }
     }
 
+    // Omit https://github.com/serlo/notification-mail-service/blob/dca922df861996323868b68e4626fca0d0950cba/src/gql/gql.ts#L25
+    if (newDocument === 'query GetUser($id: ID!) { user(id: $id) { name } }') {
+      continue
+    }
+
     try {
       const gqlContent = await prettier.format(newDocument, {
         parser: 'graphql',
