@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "show-coverage": "graphql-inspector coverage 'documents/*graphql' https://api.serlo-staging.dev/graphql",
-    "download-documents": "ts-node download_documents.ts"
+    "download-documents": "ts-node download_documents.ts",
+    "generate-report": "yarn show-coverage -s -w coverage.json && yarn ts-node generate-report.ts coverage.json report.html"
   },
   "dependencies": {
     "@graphql-inspector/cli": "^4.0.2",

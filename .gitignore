@@ -1,3 +1,6 @@
+# JSON file with coverage statistics
+coverage.json
+
 # Directory with graphql documents
 documents/
 
