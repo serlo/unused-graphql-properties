@@ -90,7 +90,7 @@ async function processFiles() {
       const gqlContent = await prettier.format(newDocument, {
         parser: 'graphql',
       })
-      const filePath = file.replace(os.tmpdir() + '/', '').replace(/\//g, '-')
+      const filePath = file.replace(os.tmpdir() + '/', '').replace(/\//g, '---')
       const fileName = `${filePath}.graphql`
       const graphqlFilePath = path.join(documentsDir, fileName)
 
