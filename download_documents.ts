@@ -84,13 +84,17 @@ async function processFiles() {
   }
 
   for (const { file, document } of documents) {
-    const fragmentsRegex = /\${([a-zA-Z_][a-zA-Z0-9_]*)}/g
+    const fragmentsRegex = /\${([^}]*)}/g
 
     let newDocument = document
 
     while (newDocument.match(fragmentsRegex)) {
       newDocument = newDocument.replace(fragmentsRegex, (_, fragment) => {
-        return fragment === 'id' ? '42' : namedDocuments[fragment]
+        console.log({ file, fragment })
+        if (fragment === 'id') return '42'
+        // Fix https://github.com/serlo/frontend/blob/54a1f5dedda0b44fbb7a160426f151d3312ba097/apps/web/src/fetcher/prettify-links-state/ids-query.tsx#L8
+        if (fragment === "opts?.withTitle ? 'title' : ''") return 'title'
+        return namedDocuments[fragment]
       })
 
       if (/uuid42:/.exec(newDocument)) {
