@@ -127,6 +127,8 @@ function findTSFiles(dir: string): string[] {
   const files = fs.readdirSync(dir)
 
   for (const file of files) {
+    if (file == '__tests__') continue
+
     const fullPath = path.join(dir, file)
     const stat = fs.statSync(fullPath)
 
