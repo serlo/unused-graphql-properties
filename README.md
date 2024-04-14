@@ -12,3 +12,8 @@ This package contain helper scripts to show the coverage of GraphQL fields and t
 
 - Use `yarn show-coverage` to show the coverage of GraphQL types and fields in the terminal.
 - Use `yarn generate-report` to generate a report about the coverage in `public/index.html`.
+
+## Notice
+
+- In [`download_documents.ts`](./download_documents.ts) in the variable `repos` is defined which repositories are scanned for graphql queries.
+- In [`download_documents`](./download_documents.ts) there are also the regexes stored which are used to detect GraphQL statements.
