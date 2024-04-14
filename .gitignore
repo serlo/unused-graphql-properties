@@ -1,3 +1,6 @@
+# Output dir with coverage report
+public/
+
 # JSON file with coverage statistics
 coverage.json
 
