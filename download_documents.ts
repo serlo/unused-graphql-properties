@@ -10,6 +10,7 @@ const repos = [
   'cloudflare-worker',
   'notification-mail-service',
   'quickbar-updater',
+  'metadata-exports',
 ]
 const tempDir = path.join(os.tmpdir(), 'serlo')
 const documentsDir = path.join(__dirname, 'documents')
@@ -55,15 +56,16 @@ async function cloneRepo(repo: string) {
 
 const namedDocumentsRegex =
   /const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+=\s+gql`([^`]*)`/g
-const gqlRegex = /(gql|graphql\()`([\s\S]*?)`/g
+const gqlRegexTs = /(gql|graphql\()`([\s\S]*?)`/g
+const gqlRegexPy = /graphql\(\s+"""([\s\S]*?)"""\s+\)/g
 
 async function processFiles() {
-  const tsFiles = findTSFiles(tempDir)
+  const sourceFiles = findSourceFiles(tempDir)
   const namedDocuments: Record<string, string> = {}
   const documents: Array<{ file: string; document: string }> = []
   let count = 1
 
-  for (const file of tsFiles) {
+  for (const file of sourceFiles) {
     const fileContent = fs.readFileSync(file, 'utf-8')
 
     let match: ReturnType<typeof namedDocumentsRegex.exec>
@@ -72,8 +74,12 @@ async function processFiles() {
       namedDocuments[match[1]] = match[2]
     }
 
-    while ((match = gqlRegex.exec(fileContent)) !== null) {
+    while ((match = gqlRegexTs.exec(fileContent)) !== null) {
       documents.push({ file, document: match[2] })
+    }
+
+    while ((match = gqlRegexPy.exec(fileContent)) !== null) {
+      documents.push({ file, document: match[1] })
     }
   }
 
@@ -122,7 +128,7 @@ async function processFiles() {
   }
 }
 
-function findTSFiles(dir: string): string[] {
+function findSourceFiles(dir: string): string[] {
   let filesToProcess: string[] = []
   const files = fs.readdirSync(dir)
 
@@ -133,8 +139,12 @@ function findTSFiles(dir: string): string[] {
     const stat = fs.statSync(fullPath)
 
     if (stat.isDirectory()) {
-      filesToProcess = filesToProcess.concat(findTSFiles(fullPath))
-    } else if (file.endsWith('.ts') || file.endsWith('.tsx')) {
+      filesToProcess = filesToProcess.concat(findSourceFiles(fullPath))
+    } else if (
+      file.endsWith('.ts') ||
+      file.endsWith('.tsx') ||
+      file.endsWith('.py')
+    ) {
       filesToProcess.push(fullPath)
     }
   }
