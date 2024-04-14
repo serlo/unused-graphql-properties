@@ -5,7 +5,12 @@ import * as prettier from 'prettier'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-const repos = ['frontend', 'cloudflare-worker', 'notification-mail-service']
+const repos = [
+  'frontend',
+  'cloudflare-worker',
+  'notification-mail-service',
+  'quickbar-updater',
+]
 const tempDir = path.join(os.tmpdir(), 'serlo')
 const documentsDir = path.join(__dirname, 'documents')
 
