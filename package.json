@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "download-documents": "tsx download_documents.ts",
-    "generate-report": "yarn show-coverage -s -w coverage.json && yarn tsx generate-report.ts coverage.json report.html",
+    "generate-report": "yarn show-coverage -s -w coverage.json && mkdir -p public && yarn tsx generate-report.ts coverage.json public/index.html",
     "show-coverage": "graphql-inspector coverage 'documents/*graphql' https://api.serlo-staging.dev/graphql"
   },
   "dependencies": {
