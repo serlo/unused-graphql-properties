@@ -19,10 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: serlo/configure-repositories/actions/setup-node@main
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
 
-      - run: yarn download-documents
-      - run: yarn generate-report
+      - name: Install dependencies
+        run: yarn
+
+      - name: Download GraphQL documents from Serlo repositories
+        run: yarn download-documents
+
+      - name: Generate coverage report of Serlo API
+        run: yarn generate-report
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
