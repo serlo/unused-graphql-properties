@@ -55,7 +55,7 @@ async function cloneRepo(repo: string) {
 
 const namedDocumentsRegex =
   /const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+=\s+gql`([^`]*)`/g
-const gqlRegex = /(gql|query = |graphql\()`([\s\S]*?)`/g
+const gqlRegex = /(gql|graphql\()`([\s\S]*?)`/g
 
 async function processFiles() {
   const tsFiles = findTSFiles(tempDir)
