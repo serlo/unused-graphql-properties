@@ -11,4 +11,4 @@ This package contain helper scripts to show the coverage of GraphQL fields and t
 ## Usage
 
 - Use `yarn show-coverage` to show the coverage of GraphQL types and fields in the terminal.
-- Use `yarn generate-report` to generate a report about the coverage in [`report.html`](./report.html).
+- Use `yarn generate-report` to generate a report about the coverage in `public/index.html`.
