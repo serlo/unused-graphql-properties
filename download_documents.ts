@@ -90,7 +90,6 @@ async function processFiles() {
 
     while (newDocument.match(fragmentsRegex)) {
       newDocument = newDocument.replace(fragmentsRegex, (_, fragment) => {
-        console.log({ file, fragment })
         if (fragment === 'id') return '42'
         // Fix https://github.com/serlo/frontend/blob/54a1f5dedda0b44fbb7a160426f151d3312ba097/apps/web/src/fetcher/prettify-links-state/ids-query.tsx#L8
         if (fragment === "opts?.withTitle ? 'title' : ''") return 'title'
