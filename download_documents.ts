@@ -5,13 +5,22 @@ import * as prettier from 'prettier'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-const repos = [
-  'frontend',
-  'cloudflare-worker',
-  'notification-mail-service',
-  'quickbar-updater',
-  'metadata-exports',
+const repos: Repo[] = [
+  { name: 'frontend', branch: 'staging' },
+  { name: 'frontend', branch: 'production' },
+  { name: 'frontend', branch: 'production' },
+  { name: 'frontend', branch: 'meine-mathe-skills' },
+  { name: 'frontend', branch: 'lenabi-user-journey' },
+  { name: 'cloudflare-worker', branch: 'staging' },
+  { name: 'cloudflare-worker', branch: 'production' },
+  { name: 'notification-mail-service', branch: 'main' },
+  { name: 'quickbar-updater', branch: 'main' },
+  { name: 'metadata-exports', branch: 'main' },
 ]
+interface Repo {
+  name: string
+  branch: string
+}
 const tempDir = path.join(os.tmpdir(), 'serlo')
 const documentsDir = path.join(__dirname, 'documents')
 
@@ -43,14 +52,16 @@ async function cloneRepos() {
   }
 }
 
-async function cloneRepo(repo: string) {
-  const repoUrl = `https://github.com/serlo/${repo}.git`
-  const targetDir = path.join(tempDir, repo)
+async function cloneRepo({ name, branch }: Repo) {
+  const repoUrl = `https://github.com/serlo/${name}.git`
+  const targetDir = path.join(tempDir, name, branch)
 
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true })
 
-    await execAsync(`git clone --depth 1 ${repoUrl} ${targetDir}`)
+    await execAsync(
+      `git clone --depth 1 --single-branch --branch ${branch} ${repoUrl} ${targetDir}`,
+    )
   }
 }
 
