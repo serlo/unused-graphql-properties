@@ -10,7 +10,6 @@ const repos: Repo[] = [
   { name: 'frontend', branch: 'production' },
   { name: 'frontend', branch: 'production' },
   { name: 'frontend', branch: 'meine-mathe-skills' },
-  { name: 'frontend', branch: 'lenabi-user-journey' },
   { name: 'cloudflare-worker', branch: 'staging' },
   { name: 'cloudflare-worker', branch: 'production' },
   { name: 'notification-mail-service', branch: 'main' },
